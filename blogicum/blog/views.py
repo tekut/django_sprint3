@@ -35,7 +35,6 @@ def category_posts(request, category_slug):
         Category,
         slug=category_slug,
         is_published=True,
-        pub_date__lte=timezone.now(),
     )
     post_list = Post.objects.filter(
         pub_date__lte=timezone.now(),
