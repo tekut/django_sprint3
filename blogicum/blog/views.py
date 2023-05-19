@@ -1,27 +1,46 @@
-from django.http import Http404
-from django.shortcuts import render
-
-posts = [
-    {
-        'id': 0
-    },
-]
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from .models import Category, Post
 
 
 def index(request):
+    posts = Post.objects.select_related(
+        'category',
+        'location',
+        'author'
+    ).filter(
+        pub_date__lte=timezone.now(),
+        is_published=True,
+        category__is_published=True
+    )[0:5]
     context = {'posts': posts}
     return render(request, 'blog/index.html', context)
 
 
 def post_detail(request, id):
-    try:
-        post = next(post for post in posts if post['id'] == id)
-    except StopIteration:
-        raise Http404("No such post")
+    post = get_object_or_404(Post.objects.select_related(
+        'location', 'author', 'category').filter(
+            pub_date__lte=timezone.now(),
+            is_published=True,
+            category__is_published=True
+    ),
+        pk=id
+    )
     context = {'post': post}
     return render(request, 'blog/detail.html', context)
 
 
 def category_posts(request, category_slug):
-    context = {'category_slug': category_slug}
+    category = get_object_or_404(
+        Category,
+        slug=category_slug,
+        is_published=True,
+        pub_date__lte=timezone.now(),
+    )
+    posts = Post.objects.filter(
+        pub_date__lte=timezone.now(),
+        is_published=True,
+        category=category
+    )
+    context = {'posts': posts, 'category': category}
     return render(request, 'blog/category.html', context)
