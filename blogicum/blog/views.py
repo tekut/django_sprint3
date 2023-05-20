@@ -7,7 +7,7 @@ def index(request):
     post_list = Post.objects.select_related(
         'category',
         'location',
-        'author'
+        'author',
     ).filter(
         pub_date__lte=timezone.now(),
         is_published=True,
@@ -18,12 +18,14 @@ def index(request):
 
 
 def post_detail(request, id):
-    post_list = get_object_or_404(Post.objects.select_related(
-        'location', 'author', 'category').filter(
+    post_list = get_object_or_404(
+        Post.objects.select_related(
+            'location', 'author', 'category').
+        filter(
             pub_date__lte=timezone.now(),
             is_published=True,
             category__is_published=True
-    ),
+            ),
         pk=id
     )
     context = {'post': post_list}
