@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class BaseModel(models.Model):
-    '''Абстрактная модель'''
+class Published(models.Model):
+    """Абстрактная модель"""
     is_published = models.BooleanField(default=True,
                                        verbose_name='Опубликовано',
                                        help_text='Снимите галочку, '
@@ -19,8 +19,8 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class Category(BaseModel):
-    '''Тематическая категория'''
+class Category(Published):
+    """Тематическая категория"""
     title = models.CharField(max_length=256, verbose_name='Заголовок')
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(unique=True,
@@ -38,8 +38,8 @@ class Category(BaseModel):
         return self.title
 
 
-class Location(BaseModel):
-    '''Географическая метка'''
+class Location(Published):
+    """Географическая метка"""
     name = models.CharField(max_length=256, verbose_name='Название места')
 
     class Meta:
@@ -50,8 +50,8 @@ class Location(BaseModel):
         return self.name
 
 
-class Post(BaseModel):
-    '''Публикация'''
+class Post(Published):
+    """Публикация"""
     title = models.CharField(max_length=256, verbose_name='Заголовок')
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(verbose_name='Дата и время публикации',
@@ -60,19 +60,19 @@ class Post(BaseModel):
                                     ' отложенные публикации.',)
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
-                               related_name='author_posts',
+                               related_name='post',
                                verbose_name='Автор публикации',
                                )
     location = models.ForeignKey(Location,
                                  on_delete=models.SET_NULL,
                                  blank=True,
-                                 related_name='location_posts',
+                                 related_name='post',
                                  verbose_name='Местоположение',
                                  null=True,
                                  )
     category = models.ForeignKey(Category,
                                  on_delete=models.SET_NULL,
-                                 related_name='category_posts',
+                                 related_name='post',
                                  verbose_name='Категория',
                                  null=True,
                                  )
